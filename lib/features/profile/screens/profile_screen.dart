@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import '../../../core/dummy_data.dart';
-import '../../../core/theme.dart';
+import '../../../core/helper/theme.dart';
 import '../widgets/profile_menu_item.dart';
 import '../../auth/login/screens/login_screen.dart';
 

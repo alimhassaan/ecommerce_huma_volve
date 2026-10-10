@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../../../core/theme.dart';
+import '../../../../core/helper/theme.dart';
 import '../../../main_navigation/screens/main_navigation_screen.dart';
 import '../../sign_up/screens/sign_up_screen.dart';
 

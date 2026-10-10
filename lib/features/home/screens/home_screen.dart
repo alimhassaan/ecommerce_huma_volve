@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 import '../../../core/dummy_data.dart';
-import '../../../core/theme.dart';
+import '../../../core/helper/theme.dart';
 import '../widgets/product_card.dart';
 import '../widgets/category_chip.dart';
 

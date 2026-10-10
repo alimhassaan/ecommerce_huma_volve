@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import '../../../core/dummy_data.dart';
-import '../../../core/theme.dart';
+import '../../../core/helper/theme.dart';
 import '../widgets/color_selector.dart';
 import '../widgets/size_selector.dart';
 import '../../../core/widgets/primary_button.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import '../../../core/dummy_data.dart';
-import '../../../core/theme.dart';
+import '../../../core/helper/theme.dart';
 
 class CartItemCard extends StatelessWidget {
   final CartItem cartItem;
@@ -36,7 +36,7 @@ class CartItemCard extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
-          const Gap(16),
+          const Gap(20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,10 +53,7 @@ class CartItemCard extends StatelessWidget {
                 const Gap(6),
                 Text(
                   'Size: ${cartItem.selectedSize}',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                 ),
                 const Gap(12),
                 Row(
@@ -71,7 +68,10 @@ class CartItemCard extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppTheme.background,
                         borderRadius: BorderRadius.circular(12),
