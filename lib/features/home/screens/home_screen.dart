@@ -61,14 +61,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Gap(32),
                     Text(
                       'Explore',
-                      style: Theme.of(context).textTheme.displayLarge
-                          ?.copyWith(fontSize: 36),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.displayLarge?.copyWith(fontSize: 36),
                     ),
                     const Gap(8),
                     Text(
                       'Best trendy collection!',
-                      style: Theme.of(context).textTheme.bodyMedium
-                          ?.copyWith(fontSize: 18),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(fontSize: 18),
                     ),
                     const Gap(32),
                     Container(
@@ -114,8 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: dummyCategories.length,
-                        separatorBuilder: (context, index) =>
-                            const Gap(12),
+                        separatorBuilder: (context, index) => const Gap(12),
                         itemBuilder: (context, index) {
                           return CategoryChip(
                             label: dummyCategories[index],
@@ -138,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.7,
+                  childAspectRatio: 0.65,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
