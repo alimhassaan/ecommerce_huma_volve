@@ -1,4 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:ecommerce_app_huma_volve/core/helper/context_extension.dart';
+import 'package:ecommerce_app_huma_volve/core/networking/api_client.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/sign_up/models/signup_req_model.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/sign_up/services/signup_services.dart';
+import 'package:ecommerce_app_huma_volve/features/home/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -19,12 +24,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
   late final TextEditingController nameController;
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
+  bool isLoading = false;
+  late final ApiClient apiClient;
+  late final SignupServices signupServices;
 
   @override
   void initState() {
     nameController = TextEditingController();
     emailController = TextEditingController();
     passwordController = TextEditingController();
+    apiClient = ApiClient();
+    signupServices = SignupServices(apiClient);
 
     super.initState();
   }
@@ -54,15 +64,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const Gap(32),
                 Text(
                   'Create Account',
-                  style: Theme.of(context).textTheme.displayLarge
-                      ?.copyWith(fontSize: 32),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.displayLarge?.copyWith(fontSize: 32),
                   textAlign: TextAlign.center,
                 ),
                 const Gap(8),
                 Text(
                   'Sign up to get started',
-                  style: Theme.of(context).textTheme.bodyMedium
-                      ?.copyWith(fontSize: 16),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 const Gap(48),
@@ -112,14 +124,41 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const Gap(40),
                 PrimaryButton(
                   text: 'Sign Up',
+                  isLoading: isLoading,
                   onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
+                    if (_formKey.currentState!.validate()) {
+                      try{
+                        setState(() {
+                        isLoading = true;
+                      });
+                      await signupServices.signup(
+                        signupReqModel: SignupReqModel(
+                          name: nameController.text,
+                          email: emailController.text,
+                          password: passwordController.text,
                         ),
                       );
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Account created successfully'),backgroundColor: Colors.green,),
+                      );
+                      setState(() {
+                        isLoading = false;
+                      });
+                      
+                      context.pushReplacement(HomeScreen());
+                      } on DioException catch(e){
+                        setState(() {
+                          isLoading = false;
+                        });
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(e.response?.data['message']?.toString() ?? 'Registration failed'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     }
                   },
                 ),
@@ -133,11 +172,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Navigator.pushReplacement(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (
-                              context,
-                              animation,
-                              secondaryAnimation,
-                            ) => const LoginScreen(),
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const LoginScreen(),
                             transitionsBuilder:
                                 (
                                   context,

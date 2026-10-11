@@ -1,10 +1,13 @@
+import 'package:dio/dio.dart';
 import 'package:ecommerce_app_huma_volve/core/helper/context_extension.dart';
+import 'package:ecommerce_app_huma_volve/core/networking/api_client.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/login/services/login_services.dart';
+import 'package:ecommerce_app_huma_volve/features/main_navigation/screens/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/helper/theme.dart';
-import '../../../main_navigation/screens/main_navigation_screen.dart';
 import '../../sign_up/screens/sign_up_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -18,11 +21,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
+  late final LoginServices loginServices;
+  late final ApiClient apiClient;
+  bool isLoading = false;
 
   @override
   void initState() {
     emailController = TextEditingController();
     passwordController = TextEditingController();
+    apiClient = ApiClient();
+    loginServices = LoginServices(apiClient);
 
     super.initState();
   }
@@ -31,6 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+
     super.dispose();
   }
 
@@ -51,15 +60,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Gap(32),
                 Text(
                   'Welcome Back!',
-                  style: Theme.of(context).textTheme.displayLarge
-                      ?.copyWith(fontSize: 32),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.displayLarge?.copyWith(fontSize: 32),
                   textAlign: TextAlign.center,
                 ),
                 const Gap(8),
                 Text(
                   'Login to continue your shopping',
-                  style: Theme.of(context).textTheme.bodyMedium
-                      ?.copyWith(fontSize: 16),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 const Gap(64),
@@ -108,13 +119,47 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Gap(32),
                 PrimaryButton(
                   text: 'Login',
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => MainNavigationScreen(),
-                        ),
-                      );
+                  isLoading: isLoading,
+                    onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      try {
+                        await loginServices.login(
+                          email: emailController.text.trim(),
+                          password: passwordController.text.trim(), 
+                        );
+                        setState(() {
+                          isLoading = false;
+                        });
+
+                        if (context.mounted) {
+                          context.pushReplacement(const MainNavigationScreen());
+                        }
+                      } on DioException catch (e) {
+                        setState(() {
+                          isLoading = false;
+                        });
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                e.response?.data['message']?.toString() ?? 'Login failed',
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        setState(() {
+                          isLoading = false;
+                        });
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text(e.toString())));
+                        }
+                      }
                     }
                   },
                 ),
@@ -128,11 +173,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.pushReplacement(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (
-                              context,
-                              animation,
-                              secondaryAnimation,
-                            ) => const SignUpScreen(),
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const SignUpScreen(),
                             transitionsBuilder:
                                 (
                                   context,

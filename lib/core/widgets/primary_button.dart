@@ -7,6 +7,7 @@ class PrimaryButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isLoading;
 
+
   const PrimaryButton({
     super.key,
     required this.text,

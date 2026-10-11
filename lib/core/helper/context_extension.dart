@@ -1,7 +1,48 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 extension Navigation on BuildContext {
-  Future<dynamic> pushNamed(
+  // Push
+  Future<T?> push<T>(Widget page, {bool rootNavigator = false}) {
+    return Navigator.of(
+      this,
+      rootNavigator: rootNavigator,
+    ).push<T>(
+      MaterialPageRoute(builder: (_) => page),
+    );
+  }
+
+  // Push Replacement
+  Future<T?> pushReplacement<T, TO>(
+    Widget page, {
+    TO? result,
+    bool rootNavigator = false,
+  }) {
+    return Navigator.of(
+      this,
+      rootNavigator: rootNavigator,
+    ).pushReplacement<T, TO>(
+      MaterialPageRoute(builder: (_) => page),
+      result: result,
+    );
+  }
+
+  // Push And Remove Until
+  Future<T?> pushAndRemoveUntil<T>(
+    Widget page, {
+    required RoutePredicate predicate,
+    bool rootNavigator = false,
+  }) {
+    return Navigator.of(
+      this,
+      rootNavigator: rootNavigator,
+    ).pushAndRemoveUntil<T>(
+      MaterialPageRoute(builder: (_) => page),
+      predicate,
+    );
+  }
+
+  // Push Named
+  Future<T?> pushNamed<T>(
     String routeName, {
     Object? arguments,
     bool rootNavigator = false,
@@ -9,21 +50,31 @@ extension Navigation on BuildContext {
     return Navigator.of(
       this,
       rootNavigator: rootNavigator,
-    ).pushNamed(routeName, arguments: arguments);
+    ).pushNamed<T>(
+      routeName,
+      arguments: arguments,
+    );
   }
 
-  Future<dynamic> pushReplacementNamed(
+  // Push Replacement Named
+  Future<T?> pushReplacementNamed<T, TO>(
     String routeName, {
     Object? arguments,
+    TO? result,
     bool rootNavigator = false,
   }) {
     return Navigator.of(
       this,
       rootNavigator: rootNavigator,
-    ).pushReplacementNamed(routeName, arguments: arguments);
+    ).pushReplacementNamed<T, TO>(
+      routeName,
+      arguments: arguments,
+      result: result,
+    );
   }
 
-  Future<dynamic> pushNamedAndRemoveUntil(
+  // Push Named And Remove Until
+  Future<T?> pushNamedAndRemoveUntil<T>(
     String routeName, {
     Object? arguments,
     required RoutePredicate predicate,
@@ -32,11 +83,28 @@ extension Navigation on BuildContext {
     return Navigator.of(
       this,
       rootNavigator: rootNavigator,
-    ).pushNamedAndRemoveUntil(routeName, predicate, arguments: arguments);
+    ).pushNamedAndRemoveUntil<T>(
+      routeName,
+      predicate,
+      arguments: arguments,
+    );
   }
 
-  void pop({bool rootNavigator = false}) =>
-      Navigator.of(this, rootNavigator: rootNavigator).pop();
+  // Pop
+  void pop({bool rootNavigator = false}) {
+    Navigator.of(
+      this,
+      rootNavigator: rootNavigator,
+    ).pop();
+  }
+
+  // Can Pop
+  bool canPop({bool rootNavigator = false}) {
+    return Navigator.of(
+      this,
+      rootNavigator: rootNavigator,
+    ).canPop();
+  }
 }
 
 extension StringExtension on String? {
