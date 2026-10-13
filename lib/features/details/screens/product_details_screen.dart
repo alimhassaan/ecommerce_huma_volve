@@ -67,6 +67,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 child: Image.network(
                   widget.product.imageUrl,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.grey.shade100,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.image_not_supported_outlined,
+                      color: Colors.grey.shade400,
+                      size: 64,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -100,10 +109,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           ),
                         ),
                         const Gap(16),
-                        Text(
-                          '\$${widget.product.price.toStringAsFixed(2)}',
-                          style: Theme.of(context).textTheme.headlineLarge
-                              ?.copyWith(color: AppTheme.primary, fontSize: 24),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '\$${widget.product.price.toStringAsFixed(2)}',
+                            style: Theme.of(context).textTheme.headlineLarge
+                                ?.copyWith(color: AppTheme.primary, fontSize: 24),
+                          ),
                         ),
                       ],
                     ),
