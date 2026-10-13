@@ -9,17 +9,32 @@ class HomeCubit extends Cubit<HomeState> {
   final HomeServices homeServices;
   HomeCubit(this.homeServices) : super(HomeInitial());
 
+  List<CategoryModel> categories = [];
+  List<ProductModel> products = [];
+
   void loadHomeData() async {
     emit(CategoryLoading());
     try {
-      final categories = await homeServices.getAllCategories();
+      categories = await homeServices.getAllCategories();
       emit(CategoryLoaded(categories));
-      emit(ProductsLoading());
-      final products = await homeServices.getAllProducts(categoryId: categories[0].id);
-      emit(ProductsLoaded(products));
+
+      if (categories.isNotEmpty && categories.first.id != null) {
+        getProducts(categoryId: categories.first.id);
+      } else {
+        getProducts();
+      }
     } catch (e) {
       emit(CategoryError(e.toString()));
-      
+    }
+  }
+
+  void getProducts({int? categoryId}) async {
+    emit(ProductsLoading());
+    try {
+      products = await homeServices.getAllProducts(categoryId: categoryId);
+      emit(ProductsLoaded(products));
+    } catch (e) {
+      emit(ProductsError(e.toString()));
     }
   }
 }

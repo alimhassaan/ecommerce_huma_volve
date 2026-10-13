@@ -29,17 +29,27 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     homeCubit = HomeCubit(homeServices);
   }
 
-
+  @override
+  void dispose() {
+    homeCubit.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-      final List<Widget> screens = [
-    BlocProvider(create: (context) => homeCubit, child: const HomeScreen()),
-    const CartScreen(),
-    const ProfileScreen(),
-  ];
+    final List<Widget> screens = [
+      BlocProvider.value(
+        value: homeCubit,
+        child: const HomeScreen(),
+      ),
+      const CartScreen(),
+      const ProfileScreen(),
+    ];
     return Scaffold(
-      body: screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: screens,
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [

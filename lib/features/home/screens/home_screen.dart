@@ -2,7 +2,6 @@ import 'package:ecommerce_app_huma_volve/features/home/cubit/home_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-
 import '../../../core/dummy_data.dart';
 import '../../../core/helper/theme.dart';
 import 'widgets/product_card.dart';
@@ -18,8 +17,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
-   context.read<HomeCubit>().loadHomeData();
     super.initState();
+    final cubit = context.read<HomeCubit>();
+    if (cubit.categories.isEmpty) {
+      cubit.loadHomeData();
+    }
   }
   int _selectedCategoryIndex = 0;
 
@@ -119,19 +121,26 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const Gap(32),
                     BlocBuilder<HomeCubit, HomeState>(
-                      buildWhen: (previous, current) {
-                        if(current is ProductsLoading || current is ProductsLoaded|| current is ProductsError){
-                        return false;
-                        }
-                        return true;
-                      },
+                      buildWhen: (previous, current) =>
+                          current is CategoryLoading ||
+                          current is CategoryLoaded ||
+                          current is CategoryError,
                       builder: (context, state) {
-                        if (state is CategoryLoading) {
-                          return const Center(child: CircularProgressIndicator());
-                        }else if (state is CategoryError) {
+                        final cubit = context.read<HomeCubit>();
+                        if (state is CategoryLoading && cubit.categories.isEmpty) {
+                          return const SizedBox(
+                            height: 44,
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        } else if (state is CategoryError && cubit.categories.isEmpty) {
                           return Center(child: Text(state.errorMessage));
-                        }else if (state is CategoryLoaded){
-                           final categories = state.categories;
+                        }
+
+                        final categories = cubit.categories;
+                        if (categories.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+
                         return SizedBox(
                           height: 44,
                           child: ListView.separated(
@@ -140,40 +149,91 @@ class _HomeScreenState extends State<HomeScreen> {
                             separatorBuilder: (context, index) => const Gap(12),
                             itemBuilder: (context, index) {
                               return CategoryChip(
-                                label: categories[index].name!,
+                                label: categories[index].name ?? '',
                                 isSelected: _selectedCategoryIndex == index,
                                 onTap: () {
-                                  setState(() {
-                                    _selectedCategoryIndex = index;
-                                  });
+                                  if (_selectedCategoryIndex != index) {
+                                    setState(() {
+                                      _selectedCategoryIndex = index;
+                                    });
+                                    cubit.getProducts(
+                                      categoryId: categories[index].id,
+                                    );
+                                  }
                                 },
                               );
                             },
                           ),
-                        );} else{
-                          return const SizedBox.shrink();
-                        }
-                         
-                       
+                        );
                       },
                     ),
                   ],
                 ),
               ),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.65,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  return ProductCard(product: dummyProducts[index]);
-                }, childCount: dummyProducts.length),
-              ),
+            BlocBuilder<HomeCubit, HomeState>(
+              buildWhen: (previous, current) =>
+                  current is ProductsLoading ||
+                  current is ProductsLoaded ||
+                  current is ProductsError,
+              builder: (context, state) {
+                final cubit = context.read<HomeCubit>();
+                if (state is ProductsLoading) {
+                  return const SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 60.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  );
+                } else if (state is ProductsError) {
+                  return SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40.0),
+                        child: Text(
+                          state.errorMessage,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                final products = cubit.products;
+                if (products.isEmpty) {
+                  return const SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40.0),
+                        child: Text(
+                          'No products found',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  sliver: SliverGrid(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.65,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return ProductCard(product: products[index]);
+                      },
+                      childCount: products.length,
+                    ),
+                  ),
+                );
+              },
             ),
             const SliverToBoxAdapter(child: Gap(24)),
           ],

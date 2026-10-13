@@ -3,11 +3,9 @@ import 'package:ecommerce_app_huma_volve/core/helper/context_extension.dart';
 import 'package:ecommerce_app_huma_volve/core/networking/api_client.dart';
 import 'package:ecommerce_app_huma_volve/features/auth/sign_up/models/signup_req_model.dart';
 import 'package:ecommerce_app_huma_volve/features/auth/sign_up/services/signup_services.dart';
-import 'package:ecommerce_app_huma_volve/features/home/screens/home_screen.dart';
 import 'package:ecommerce_app_huma_volve/features/main_navigation/screens/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/helper/theme.dart';

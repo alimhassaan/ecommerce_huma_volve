@@ -10,15 +10,22 @@ class HomeServices {
 
   Future<List<CategoryModel>> getAllCategories() async {
     final response = await apiClient.dio.get(ApiEndPoint.categories);
-    final List jsonData = response.data;
-    final List<CategoryModel> categories = jsonData.map((e)=>CategoryModel.fromJson(e)).toList();
-    return categories;
+    final dynamic data = response.data;
+    if (data is List) {
+      return data.map((e) => CategoryModel.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    return [];
   }
 
   Future<List<ProductModel>> getAllProducts({int? categoryId}) async {
-    final response = await apiClient.dio.get('${ApiEndPoint.categories}/$categoryId/${ApiEndPoint.products}');
-    final List jsonData = response.data;
-    final List<ProductModel> products = jsonData.map((e)=>ProductModel.fromJson(e)).toList();
-    return products;
+    final String endpoint = categoryId != null
+        ? '${ApiEndPoint.categories}/$categoryId/${ApiEndPoint.products}'
+        : ApiEndPoint.products;
+    final response = await apiClient.dio.get(endpoint);
+    final dynamic data = response.data;
+    if (data is List) {
+      return data.map((e) => ProductModel.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    return [];
   }
 }
