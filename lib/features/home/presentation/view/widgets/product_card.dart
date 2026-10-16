@@ -1,6 +1,8 @@
 import 'package:ecommerce_app_huma_volve/features/home/domain/entites/home_product_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/helper/theme.dart';
+import '../../../../cart/view_model/cart_cubit.dart';
 import '../../../../details/screens/product_details_screen.dart';
 
 class ProductCard extends StatelessWidget {
@@ -28,12 +30,16 @@ class ProductCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
+        final cartCubit = context.read<CartCubit>();
         Navigator.push(
           context,
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 500),
             pageBuilder: (context, animation, secondaryAnimation) =>
-                ProductDetailsScreen(product: product),
+                BlocProvider.value(
+                  value: cartCubit,
+                  child: ProductDetailsScreen(product: product),
+                ),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
                   return FadeTransition(opacity: animation, child: child);

@@ -1,30 +1,53 @@
 import 'package:ecommerce_app_huma_volve/features/home/presentation/view_model/home_cubit.dart';
+import 'package:ecommerce_app_huma_volve/features/profile/view_model/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import '../../../../core/dummy_data.dart';
 import '../../../../core/helper/theme.dart';
+import '../../../profile/widgets/profile_avatar.dart';
 import 'widgets/product_card.dart';
 import 'widgets/category_chip.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback? onProfileTap;
+
+  const HomeScreen({super.key, this.onProfileTap});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _selectedCategoryIndex = 0;
+  late final ScrollController scrollController;
+
   @override
   void initState() {
     super.initState();
+    scrollController = ScrollController();
+    scrollController.addListener(_onListen);
     final cubit = context.read<HomeCubit>();
     if (cubit.categories.isEmpty) {
       cubit.loadHomeData();
     }
   }
 
-  int _selectedCategoryIndex = 0;
+  void _onListen() {
+    if (!scrollController.hasClients) return;
+    final position = scrollController.position;
+    const triggerDistance = 200.0;
+    if (position.pixels >= position.maxScrollExtent - triggerDistance) {
+      context.read<HomeCubit>().loadMoreProducts();
+    }
+  }
+
+  @override
+  void dispose() {
+    scrollController
+      ..removeListener(_onListen)
+      ..dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppTheme.background,
       body: SafeArea(
         child: CustomScrollView(
+          controller: scrollController,
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
@@ -60,10 +84,19 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: AppTheme.primary,
                           ),
                         ),
-                        CircleAvatar(
-                          radius: 24,
-                          backgroundImage: NetworkImage(
-                            dummyUser.profilePictureUrl,
+                        GestureDetector(
+                          onTap: widget.onProfileTap,
+                          child: BlocBuilder<ProfileCubit, ProfileState>(
+                            builder: (context, state) {
+                              final user = state is ProfileLoaded
+                                  ? state.user
+                                  : null;
+                              return ProfileAvatar(
+                                name: user?.name ?? '',
+                                imageUrl: user?.profilePictureUrl ?? '',
+                                radius: 24,
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -161,6 +194,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     });
                                     cubit.getProducts(
                                       categoryId: categories[index].id,
+                                      limit: 10,
+                                      offset: 0,
                                     );
                                   }
                                 },
@@ -234,6 +269,43 @@ class _HomeScreenState extends State<HomeScreen> {
                     }, childCount: products.length),
                   ),
                 );
+              },
+            ),
+            BlocBuilder<HomeCubit, HomeState>(
+              buildWhen: (previous, current) =>
+                  current is ProductsLoading ||
+                  current is ProductsError ||
+                  current is ProductsLoaded,
+              builder: (context, state) {
+                if (state is! ProductsLoaded) {
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
+                }
+
+                if (state.isLoadingMore) {
+                  return const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  );
+                }
+
+                if (state.paginationError != null) {
+                  return SliverToBoxAdapter(
+                    child: Center(
+                      child: TextButton(
+                        onPressed: () =>
+                            context.read<HomeCubit>().loadMoreProducts(),
+                        child: Text(
+                          'Could not load more products. Tap to retry.',
+                          style: TextStyle(color: AppTheme.primary),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return const SliverToBoxAdapter(child: SizedBox.shrink());
               },
             ),
             const SliverToBoxAdapter(child: Gap(24)),

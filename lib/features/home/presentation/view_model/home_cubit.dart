@@ -9,6 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
+  static const int _pageSize = 10;
+
   final GetCategoriesUseCase getCategoriesUseCase;
   final GetProductsUseCase getProductsUseCase;
   HomeCubit({
@@ -18,6 +20,12 @@ class HomeCubit extends Cubit<HomeState> {
 
   List<HomeCategoryModel> categories = [];
   List<HomeProductModel> products = [];
+  int? _currentCategoryId;
+  int _currentPageSize = _pageSize;
+  int _nextOffset = 0;
+  int _requestGeneration = 0;
+  bool _isLoadingProducts = false;
+  bool _hasMoreProducts = true;
 
   Future<void> loadHomeData() async {
     emit(CategoryLoading());
@@ -42,17 +50,43 @@ class HomeCubit extends Cubit<HomeState> {
           return;
         }
 
-        await getProducts(categoryId: categories.first.id);
+        await getProducts(
+          categoryId: categories.first.id!,
+          limit: _pageSize,
+          offset: 0,
+        );
       },
     );
   }
 
-  Future<void> getProducts({int? categoryId}) async {
+  Future<void> getProducts({
+    int? categoryId,
+    int limit = _pageSize,
+    int offset = 0,
+  }) async {
+    final requestGeneration = ++_requestGeneration;
+    _currentCategoryId = categoryId;
+    _currentPageSize = limit;
+    _nextOffset = offset;
+    _isLoadingProducts = true;
+    _hasMoreProducts = true;
+    products = [];
     emit(ProductsLoading());
-    final productsResult = await getProductsUseCase.invoke(categoryId);
+
+    final productsResult = await getProductsUseCase.invoke(
+      categoryId: categoryId,
+      limit: limit,
+      offset: offset,
+    );
+
+    if (requestGeneration != _requestGeneration) return;
+    _isLoadingProducts = false;
 
     productsResult.fold(
-      (failure) => emit(ProductsError(failure.failureMessage)),
+      (failure) {
+        _hasMoreProducts = false;
+        emit(ProductsError(failure.failureMessage));
+      },
       (loadedProducts) {
         products = loadedProducts
             .map(
@@ -67,19 +101,70 @@ class HomeCubit extends Cubit<HomeState> {
               ),
             )
             .toList();
-        emit(ProductsLoaded(products));
+        _nextOffset = offset + loadedProducts.length;
+        _hasMoreProducts = loadedProducts.length >= limit;
+        emit(ProductsLoaded(List.unmodifiable(products)));
       },
     );
   }
 
-  Future<void> getProdctsById(int id) async {
-    emit(ProductsLoading());
-    final prodcts = await getProductsUseCase.invoke(id);
-    prodcts.fold((failure) {
-      emit(ProductsError(failure.failureMessage));
-    }, (productsLoaded) {
-emit(ProductsLoaded(productsLoaded));
-    });
-    
+  Future<void> loadMoreProducts() async {
+    if (_isLoadingProducts || !_hasMoreProducts) return;
+
+    final requestGeneration = _requestGeneration;
+    _isLoadingProducts = true;
+    emit(
+      ProductsLoaded(
+        List.unmodifiable(products),
+        isLoadingMore: true,
+      ),
+    );
+
+    final productsResult = await getProductsUseCase.invoke(
+      categoryId: _currentCategoryId,
+      limit: _currentPageSize,
+      offset: _nextOffset,
+    );
+
+    if (requestGeneration != _requestGeneration) return;
+    _isLoadingProducts = false;
+    productsResult.fold(
+      (failure) => emit(
+        ProductsLoaded(
+          List.unmodifiable(products),
+          paginationError: failure.failureMessage,
+        ),
+      ),
+      (loadedProducts) {
+        products.addAll(
+          loadedProducts.map(
+            (product) => HomeProductModel(
+              id: product.id,
+              title: product.title,
+              slug: product.slug,
+              price: product.price,
+              description: product.description,
+              category: product.category,
+              images: product.images,
+            ),
+          ),
+        );
+        _nextOffset += loadedProducts.length;
+        _hasMoreProducts = loadedProducts.length >= _currentPageSize;
+        emit(ProductsLoaded(List.unmodifiable(products)));
+      },
+    );
+  }
+
+  Future<void> getProdctsById(
+    int id, {
+    int limit = _pageSize,
+    int offset = 0,
+  }) async {
+    await getProducts(
+      categoryId: id,
+      limit: limit,
+      offset: offset,
+    );
   }
 }

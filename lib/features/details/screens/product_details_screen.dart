@@ -1,7 +1,9 @@
 import 'package:ecommerce_app_huma_volve/features/home/domain/entites/home_product_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import '../../../core/helper/theme.dart';
+import '../../cart/view_model/cart_cubit.dart';
 import '../widgets/color_selector.dart';
 import '../widgets/size_selector.dart';
 import '../../../core/widgets/primary_button.dart';
@@ -204,6 +206,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     PrimaryButton(
                       text: 'Add to Cart',
                       onPressed: () {
+                        context.read<CartCubit>().addItem(
+                          product: widget.product,
+                          selectedColor: _selectedColor,
+                          selectedSize: _selectedSize,
+                        );
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(

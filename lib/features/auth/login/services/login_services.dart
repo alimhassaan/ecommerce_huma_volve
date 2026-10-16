@@ -20,6 +20,10 @@ class LoginServices {
 
     await SecureStorage.saveAccessToken(modelData.accessToken);
     await SecureStorage.saveRefreshToken(modelData.refreshToken);
+    await SecureStorage.saveProfile(
+      name: email.split('@').first,
+      email: email,
+    );
     return modelData;
   }
 }
