@@ -15,7 +15,7 @@ class HomeRepoImp implements HomeRepo {
       final categories = await homeRemoteDataSource.getCategories();
       return Right(categories as List<HomeCategoryEntity>);
     } catch (e) {
-      return Left(ErrorHandler.handle(e).failure);
+      return Left(ErrorHandler.handle(e));
     }
   }
 
@@ -27,7 +27,7 @@ class HomeRepoImp implements HomeRepo {
       final producs = await homeRemoteDataSource.getProducts(categoryId);
       return Right(producs);
     } catch (e) {
-      return Left(ErrorHandler.handle(e).failure);
+      return Left(ErrorHandler.handle(e));
     }
   }
 }
