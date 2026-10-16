@@ -65,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
             Icon(Icons.shopping_bag, size: 120, color: AppTheme.primary),
             const Gap(24),
             Text(
-              'Huma-volve',
+              'Stylo',
               style: Theme.of(context).textTheme.displayLarge?.copyWith(
                 fontSize: 40,
                 color: AppTheme.primary,
@@ -73,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const Gap(8),
             Text(
-              'Your Ultimate E-Commerce App',
+              'Wear Your Style',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 16,
                 color: Colors.grey.shade600,
