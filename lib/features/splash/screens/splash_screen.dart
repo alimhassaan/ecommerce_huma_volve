@@ -65,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
             Icon(Icons.shopping_bag, size: 120, color: AppTheme.primary),
             const Gap(24),
             Text(
-              'Stylo',
+              'Vogue Lane',
               style: Theme.of(context).textTheme.displayLarge?.copyWith(
                 fontSize: 40,
                 color: AppTheme.primary,
