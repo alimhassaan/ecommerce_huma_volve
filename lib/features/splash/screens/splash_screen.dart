@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _navigateToNext() async {
     await Future.delayed(const Duration(seconds: 2));
     final accessToken = await SecureStorage.getAccessToken();
-    final refreshToken = await SecureStorage.getRefreghToken();
+    final refreshToken = await SecureStorage.getRefreshToken();
     if (mounted) {
       if (accessToken.isNotNullAndNotEmpty() &&
           refreshToken.isNotNullAndNotEmpty()) {

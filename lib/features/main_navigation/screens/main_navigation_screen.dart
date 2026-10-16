@@ -7,9 +7,12 @@ import 'package:ecommerce_app_huma_volve/features/home/presentation/view_model/h
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/helper/theme.dart';
+import '../../cart/models/cart_item.dart';
+import '../../cart/view_model/cart_cubit.dart';
 import '../../home/presentation/view/home_screen.dart';
 import '../../cart/screens/cart_screen.dart';
 import '../../profile/screens/profile_screen.dart';
+import '../../profile/view_model/profile_cubit.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -22,11 +25,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
   late final ApiClient apiClient;
   late final HomeCubit homeCubit;
+  late final CartCubit cartCubit;
+  late final ProfileCubit profileCubit;
 
   @override
   void initState() {
     super.initState();
     apiClient = ApiClient();
+    cartCubit = CartCubit();
+    profileCubit = ProfileCubit();
     final homeRepository = HomeRepoImp(HomeRemoteDataSourceImp(apiClient));
     homeCubit = HomeCubit(
       getCategoriesUseCase: GetCategoriesUseCase(homeRepository),
@@ -37,19 +44,29 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   void dispose() {
     homeCubit.close();
+    cartCubit.close();
+    profileCubit.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
-      BlocProvider.value(value: homeCubit, child: const HomeScreen()),
-      const CartScreen(),
+      BlocProvider.value(
+        value: homeCubit,
+        child: HomeScreen(onProfileTap: () => setState(() => _currentIndex = 2)),
+      ),
+      CartScreen(onContinueShopping: () => setState(() => _currentIndex = 0)),
       const ProfileScreen(),
     ];
-    return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: screens),
-      bottomNavigationBar: Container(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: cartCubit),
+        BlocProvider.value(value: profileCubit),
+      ],
+      child: Scaffold(
+        body: IndexedStack(index: _currentIndex, children: screens),
+        bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
@@ -75,7 +92,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             showUnselectedLabels: false,
             type: BottomNavigationBarType.fixed,
             elevation: 0,
-            items: const [
+            items: [
               BottomNavigationBarItem(
                 icon: Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -88,17 +105,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Icon(Icons.shopping_cart_outlined, size: 28),
-                ),
-                activeIcon: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Icon(Icons.shopping_cart, size: 32),
-                ),
+                icon: _cartNavigationIcon(Icons.shopping_cart_outlined, 28),
+                activeIcon: _cartNavigationIcon(Icons.shopping_cart, 32),
                 label: 'Cart',
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
                 icon: Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Icon(Icons.person_outline, size: 28),
@@ -113,6 +124,46 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
         ),
       ),
+      ),
+    );
+  }
+
+  Widget _cartNavigationIcon(IconData icon, double size) {
+    return BlocBuilder<CartCubit, List<CartItem>>(
+      builder: (context, items) {
+        final count = items.fold(0, (sum, item) => sum + item.quantity);
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(icon, size: size),
+              if (count > 0)
+                Positioned(
+                  right: -9,
+                  top: -7,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: AppTheme.accent,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                    child: Text(
+                      count > 99 ? '99+' : '$count',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
