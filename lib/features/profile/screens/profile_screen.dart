@@ -1,3 +1,4 @@
+import 'package:ecommerce_app_huma_volve/core/storage/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import '../../../core/dummy_data.dart';
@@ -18,10 +19,7 @@ class ProfileScreen extends StatelessWidget {
             const Gap(24),
             const Text(
               'Profile',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const Gap(32),
             Stack(
@@ -51,18 +49,12 @@ class ProfileScreen extends StatelessWidget {
             const Gap(16),
             Text(
               dummyUser.name,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const Gap(4),
             Text(
               dummyUser.email,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
             ),
             const Gap(32),
             Expanded(
@@ -99,20 +91,27 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.logout,
                     title: 'Logout',
                     isDestructive: true,
-                    onTap: () {
+                    onTap: () async {
+                      await SecureStorage.deleteTokens();
                       Navigator.pushReplacement(
                         context,
                         PageRouteBuilder(
-                          pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
-                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                            return FadeTransition(opacity: animation, child: child);
-                          },
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  const LoginScreen(),
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                );
+                              },
                         ),
                       );
                     },
                   ),
                 ],
-              ),
+              ), 
             ),
           ],
         ),
