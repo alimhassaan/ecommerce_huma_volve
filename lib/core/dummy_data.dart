@@ -9,7 +9,7 @@ class Product {
   final List<Color> colors;
   final List<String> sizes;
 
-  Product({
+  const Product({
     required this.id,
     required this.name,
     required this.description,
@@ -20,7 +20,33 @@ class Product {
   });
 }
 
-final dummyProducts = [
+class CartItem {
+  final Product product;
+  final int quantity;
+  final Color selectedColor;
+  final String selectedSize;
+
+  const CartItem({
+    required this.product,
+    required this.quantity,
+    required this.selectedColor,
+    required this.selectedSize,
+  });
+}
+
+class UserProfile {
+  final String name;
+  final String email;
+  final String profilePictureUrl;
+
+  const UserProfile({
+    required this.name,
+    required this.email,
+    required this.profilePictureUrl,
+  });
+}
+
+const dummyProducts = [
   Product(
     id: '1',
     name: 'Classic White Sneakers',
@@ -59,20 +85,6 @@ final dummyProducts = [
   ),
 ];
 
-class CartItem {
-  final Product product;
-  final int quantity;
-  final Color selectedColor;
-  final String selectedSize;
-
-  CartItem({
-    required this.product,
-    required this.quantity,
-    required this.selectedColor,
-    required this.selectedSize,
-  });
-}
-
 final dummyCart = [
   CartItem(
     product: dummyProducts[0],
@@ -88,28 +100,8 @@ final dummyCart = [
   ),
 ];
 
-class UserProfile {
-  final String name;
-  final String email;
-  final String profilePictureUrl;
-
-  UserProfile({
-    required this.name,
-    required this.email,
-    required this.profilePictureUrl,
-  });
-}
-
-final dummyUser = UserProfile(
+const dummyUser = UserProfile(
   name: 'John Doe',
   email: 'john.doe@example.com',
   profilePictureUrl: 'https://picsum.photos/seed/user/150/150',
 );
-
-final dummyCategories = [
-  'All',
-  'Shoes',
-  'Clothing',
-  'Accessories',
-  'Electronics',
-];
