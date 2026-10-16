@@ -1,13 +1,13 @@
+import 'package:ecommerce_app_huma_volve/features/home/domain/entites/home_product_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import '../../../core/dummy_data.dart';
 import '../../../core/helper/theme.dart';
 import '../widgets/color_selector.dart';
 import '../widgets/size_selector.dart';
 import '../../../core/widgets/primary_button.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
-  final Product product;
+  final HomeProductEntity product;
 
   const ProductDetailsScreen({super.key, required this.product});
 
@@ -16,14 +16,36 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  static const List<Color> _availableColors = [
+    Colors.black,
+    Colors.white,
+    Colors.grey,
+  ];
+  static const List<String> _availableSizes = ['S', 'M', 'L', 'XL'];
+
   late Color _selectedColor;
   late String _selectedSize;
 
   @override
   void initState() {
     super.initState();
-    _selectedColor = widget.product.colors.first;
-    _selectedSize = widget.product.sizes.first;
+    _selectedColor = _availableColors.first;
+    _selectedSize = _availableSizes.first;
+  }
+
+  String get _imageUrl {
+    final images = widget.product.images;
+    if (images != null) {
+      for (final image in images) {
+        final uri = Uri.tryParse(image);
+        if (uri != null &&
+            (uri.scheme == 'http' || uri.scheme == 'https') &&
+            uri.host.isNotEmpty) {
+          return image;
+        }
+      }
+    }
+    return '';
   }
 
   @override
@@ -64,10 +86,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             flexibleSpace: FlexibleSpaceBar(
               background: Hero(
                 tag: 'product-${widget.product.id}',
-                child: Image.network(
-                  widget.product.imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
+                child: _imageUrl.isNotEmpty
+                    ? Image.network(
+                        _imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Colors.grey.shade100,
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.image_not_supported_outlined,
+                            color: Colors.grey.shade400,
+                            size: 64,
+                          ),
+                        ),
+                      )
+                    : Container(
                     color: Colors.grey.shade100,
                     alignment: Alignment.center,
                     child: Icon(
@@ -76,7 +109,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       size: 64,
                     ),
                   ),
-                ),
               ),
             ),
           ),
@@ -103,7 +135,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            widget.product.name,
+                            widget.product.title ?? 'Unnamed product',
                             style: Theme.of(context).textTheme.headlineLarge
                                 ?.copyWith(fontSize: 28, height: 1.2),
                           ),
@@ -112,7 +144,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            '\$${widget.product.price.toStringAsFixed(2)}',
+                            '\$${(widget.product.price ?? 0).toStringAsFixed(2)}',
                             style: Theme.of(context).textTheme.headlineLarge
                                 ?.copyWith(color: AppTheme.primary, fontSize: 24),
                           ),
@@ -128,7 +160,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                     const Gap(8),
                     Text(
-                      widget.product.description,
+                      widget.product.description ?? 'No description available.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         height: 1.6,
                         fontSize: 16,
@@ -143,7 +175,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                     const Gap(12),
                     ColorSelector(
-                      colors: widget.product.colors,
+                      colors: _availableColors,
                       selectedColor: _selectedColor,
                       onColorSelected: (color) {
                         setState(() {
@@ -160,7 +192,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                     const Gap(12),
                     SizeSelector(
-                      sizes: widget.product.sizes,
+                      sizes: _availableSizes,
                       selectedSize: _selectedSize,
                       onSizeSelected: (size) {
                         setState(() {
@@ -175,7 +207,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              '${widget.product.name} added to cart',
+                              '${widget.product.title ?? 'Product'} added to cart',
                             ),
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(

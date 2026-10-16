@@ -1,10 +1,10 @@
+import 'package:ecommerce_app_huma_volve/features/home/domain/entites/home_product_entity.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/helper/theme.dart';
-import '../../../details/screens/product_details_screen.dart';
-import '../../services/models/product_model.dart';
+import '../../../../../core/helper/theme.dart';
+import '../../../../details/screens/product_details_screen.dart';
 
 class ProductCard extends StatelessWidget {
-  final ProductModel product;
+  final HomeProductEntity product;
 
   const ProductCard({super.key, required this.product});
 
@@ -33,10 +33,11 @@ class ProductCard extends StatelessWidget {
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 500),
             pageBuilder: (context, animation, secondaryAnimation) =>
-                ProductDetailsScreen(product: product.toProduct()),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
+                ProductDetailsScreen(product: product),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
           ),
         );
       },
@@ -63,8 +64,9 @@ class ProductCard extends StatelessWidget {
                   Hero(
                     tag: 'product-${product.id}',
                     child: ClipRRect(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(24)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(24),
+                      ),
                       child: imageUrl.isNotEmpty
                           ? Image.network(
                               imageUrl,
@@ -73,14 +75,14 @@ class ProductCard extends StatelessWidget {
                               height: double.infinity,
                               errorBuilder: (context, error, stackTrace) =>
                                   Container(
-                                color: Colors.grey.shade100,
-                                alignment: Alignment.center,
-                                child: Icon(
-                                  Icons.image_not_supported_outlined,
-                                  color: Colors.grey.shade400,
-                                  size: 32,
-                                ),
-                              ),
+                                    color: Colors.grey.shade100,
+                                    alignment: Alignment.center,
+                                    child: Icon(
+                                      Icons.image_not_supported_outlined,
+                                      color: Colors.grey.shade400,
+                                      size: 32,
+                                    ),
+                                  ),
                             )
                           : Container(
                               color: Colors.grey.shade100,

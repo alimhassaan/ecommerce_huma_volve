@@ -1,10 +1,13 @@
 import 'package:ecommerce_app_huma_volve/core/networking/api_client.dart';
-import 'package:ecommerce_app_huma_volve/features/home/cubit/home_cubit.dart';
-import 'package:ecommerce_app_huma_volve/features/home/services/home_services.dart';
+import 'package:ecommerce_app_huma_volve/features/home/data/data_source/home_remote_data_source_imp.dart';
+import 'package:ecommerce_app_huma_volve/features/home/data/repo/home_repo_imp.dart';
+import 'package:ecommerce_app_huma_volve/features/home/domain/use_cases/get_categories_use_case.dart';
+import 'package:ecommerce_app_huma_volve/features/home/domain/use_cases/get_products_use_case.dart';
+import 'package:ecommerce_app_huma_volve/features/home/presentation/view_model/home_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/helper/theme.dart';
-import '../../home/screens/home_screen.dart';
+import '../../home/presentation/view/home_screen.dart';
 import '../../cart/screens/cart_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 
@@ -18,15 +21,17 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
   late final ApiClient apiClient;
-  late final HomeServices homeServices;
   late final HomeCubit homeCubit;
 
   @override
   void initState() {
     super.initState();
     apiClient = ApiClient();
-    homeServices = HomeServices(apiClient: apiClient);
-    homeCubit = HomeCubit(homeServices);
+    final homeRepository = HomeRepoImp(HomeRemoteDataSourceImp(apiClient));
+    homeCubit = HomeCubit(
+      getCategoriesUseCase: GetCategoriesUseCase(homeRepository),
+      getProductsUseCase: GetProductsUseCase(homeRepository),
+    );
   }
 
   @override
@@ -38,18 +43,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
-      BlocProvider.value(
-        value: homeCubit,
-        child: const HomeScreen(),
-      ),
+      BlocProvider.value(value: homeCubit, child: const HomeScreen()),
       const CartScreen(),
       const ProfileScreen(),
     ];
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: screens),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [

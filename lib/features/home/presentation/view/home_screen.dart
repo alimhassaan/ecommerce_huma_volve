@@ -1,9 +1,9 @@
-import 'package:ecommerce_app_huma_volve/features/home/cubit/home_cubit.dart';
+import 'package:ecommerce_app_huma_volve/features/home/presentation/view_model/home_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import '../../../core/dummy_data.dart';
-import '../../../core/helper/theme.dart';
+import '../../../../core/dummy_data.dart';
+import '../../../../core/helper/theme.dart';
 import 'widgets/product_card.dart';
 import 'widgets/category_chip.dart';
 
@@ -23,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
       cubit.loadHomeData();
     }
   }
+
   int _selectedCategoryIndex = 0;
 
   @override
@@ -127,12 +128,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           current is CategoryError,
                       builder: (context, state) {
                         final cubit = context.read<HomeCubit>();
-                        if (state is CategoryLoading && cubit.categories.isEmpty) {
+                        if (state is CategoryLoading &&
+                            cubit.categories.isEmpty) {
                           return const SizedBox(
                             height: 44,
                             child: Center(child: CircularProgressIndicator()),
                           );
-                        } else if (state is CategoryError && cubit.categories.isEmpty) {
+                        } else if (state is CategoryError &&
+                            cubit.categories.isEmpty) {
                           return Center(child: Text(state.errorMessage));
                         }
 
@@ -219,18 +222,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 return SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   sliver: SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.65,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return ProductCard(product: products[index]);
-                      },
-                      childCount: products.length,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.65,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      return ProductCard(product: products[index]);
+                    }, childCount: products.length),
                   ),
                 );
               },
