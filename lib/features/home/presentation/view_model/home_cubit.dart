@@ -42,14 +42,26 @@ class HomeCubit extends Cubit<HomeState> {
           return;
         }
 
-        await getProducts(categoryId: categories.first.id);
+        await getProducts(
+          categoryId: categories.first.id!,
+          limit: 10,
+          offset: 0,
+        );
       },
     );
   }
 
-  Future<void> getProducts({int? categoryId}) async {
+  Future<void> getProducts({
+    int? categoryId,
+    required int limit,
+    required int offset,
+  }) async {
     emit(ProductsLoading());
-    final productsResult = await getProductsUseCase.invoke(categoryId);
+    final productsResult = await getProductsUseCase.invoke(
+      categoryId: categoryId,
+      limit: limit,
+      offset: offset,
+    );
 
     productsResult.fold(
       (failure) => emit(ProductsError(failure.failureMessage)),
@@ -72,14 +84,20 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
-  Future<void> getProdctsById(int id) async {
+  Future<void> getProdctsById(
+    int id, {
+    required int limit,
+    required int offset,
+  }) async {
     emit(ProductsLoading());
-    final prodcts = await getProductsUseCase.invoke(id);
-    prodcts.fold((failure) {
-      emit(ProductsError(failure.failureMessage));
-    }, (productsLoaded) {
-emit(ProductsLoaded(productsLoaded));
-    });
-    
+    final prodcts = await getProductsUseCase.invoke(
+      categoryId: id,
+      limit: limit,
+      offset: offset,
+    );
+    prodcts.fold(
+      (failure) => emit(ProductsError(failure.failureMessage)),
+      (productsLoaded) => emit(ProductsLoaded(productsLoaded)),
+    );
   }
 }

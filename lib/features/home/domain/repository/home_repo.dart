@@ -4,11 +4,10 @@ import 'package:ecommerce_app_huma_volve/features/home/domain/entites/home_categ
 import 'package:ecommerce_app_huma_volve/features/home/domain/entites/home_product_entity.dart';
 
 abstract class HomeRepo {
-
   Future<Either<Failure, List<HomeCategoryEntity>>> getCategories();
-  Future<Either<Failure, List<HomeProductEntity>>> getProducts(
-    int? categoryId,
- 
-  );
+  Future<Either<Failure, List<HomeProductEntity>>> getProducts({
+    required int? categoryId,
+    required int limit,
+    required int offset,
+  });
 }
-

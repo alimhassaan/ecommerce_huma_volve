@@ -15,16 +15,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _selectedCategoryIndex = 0;
+  late final ScrollController scrollController;
+
   @override
   void initState() {
     super.initState();
+    scrollController = ScrollController();
+    scrollController.addListener(_onListen);
     final cubit = context.read<HomeCubit>();
     if (cubit.categories.isEmpty) {
       cubit.loadHomeData();
     }
   }
 
-  int _selectedCategoryIndex = 0;
+  void _onListen() {
+    final pixels = scrollController.position.pixels;
+    final max = scrollController.position.maxScrollExtent;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,6 +169,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     });
                                     cubit.getProducts(
                                       categoryId: categories[index].id,
+                                      limit: 10,
+                                      offset: 0,
                                     );
                                   }
                                 },
