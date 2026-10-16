@@ -6,9 +6,7 @@ extension Navigation on BuildContext {
     return Navigator.of(
       this,
       rootNavigator: rootNavigator,
-    ).push<T>(
-      MaterialPageRoute(builder: (_) => page),
-    );
+    ).push<T>(MaterialPageRoute(builder: (_) => page));
   }
 
   // Push Replacement
@@ -35,10 +33,7 @@ extension Navigation on BuildContext {
     return Navigator.of(
       this,
       rootNavigator: rootNavigator,
-    ).pushAndRemoveUntil<T>(
-      MaterialPageRoute(builder: (_) => page),
-      predicate,
-    );
+    ).pushAndRemoveUntil<T>(MaterialPageRoute(builder: (_) => page), predicate);
   }
 
   // Push Named
@@ -50,10 +45,7 @@ extension Navigation on BuildContext {
     return Navigator.of(
       this,
       rootNavigator: rootNavigator,
-    ).pushNamed<T>(
-      routeName,
-      arguments: arguments,
-    );
+    ).pushNamed<T>(routeName, arguments: arguments);
   }
 
   // Push Replacement Named
@@ -83,32 +75,23 @@ extension Navigation on BuildContext {
     return Navigator.of(
       this,
       rootNavigator: rootNavigator,
-    ).pushNamedAndRemoveUntil<T>(
-      routeName,
-      predicate,
-      arguments: arguments,
-    );
+    ).pushNamedAndRemoveUntil<T>(routeName, predicate, arguments: arguments);
   }
 
   // Pop
   void pop({bool rootNavigator = false}) {
-    Navigator.of(
-      this,
-      rootNavigator: rootNavigator,
-    ).pop();
+    Navigator.of(this, rootNavigator: rootNavigator).pop();
   }
 
   // Can Pop
   bool canPop({bool rootNavigator = false}) {
-    return Navigator.of(
-      this,
-      rootNavigator: rootNavigator,
-    ).canPop();
+    return Navigator.of(this, rootNavigator: rootNavigator).canPop();
   }
 }
 
 extension StringExtension on String? {
   bool isNullOrEmpty() => this == null || this == "";
+  bool isNotNullAndNotEmpty() => this != null && this!.isNotEmpty;
 }
 
 extension ListExtension<T> on List<T>? {

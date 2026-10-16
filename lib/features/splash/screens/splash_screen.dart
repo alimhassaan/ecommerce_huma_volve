@@ -1,3 +1,6 @@
+import 'package:ecommerce_app_huma_volve/core/helper/context_extension.dart';
+import 'package:ecommerce_app_huma_volve/core/storage/secure_storage.dart';
+import 'package:ecommerce_app_huma_volve/features/main_navigation/screens/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import '../../../core/helper/theme.dart';
@@ -19,16 +22,35 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _navigateToNext() async {
     await Future.delayed(const Duration(seconds: 2));
+    final accessToken = await SecureStorage.getAccessToken();
+    final refreshToken = await SecureStorage.getRefreghToken();
     if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      );
+      if (accessToken.isNotNullAndNotEmpty() &&
+          refreshToken.isNotNullAndNotEmpty()) {
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const MainNavigationScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+          ),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const LoginScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+          ),
+        );
+      }
     }
   }
 
@@ -40,11 +62,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.shopping_bag,
-              size: 120,
-              color: AppTheme.primary,
-            ),
+            Icon(Icons.shopping_bag, size: 120, color: AppTheme.primary),
             const Gap(24),
             Text(
               'Huma-volve',
@@ -62,9 +80,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const Gap(48),
-            CircularProgressIndicator(
-              color: AppTheme.primary,
-            ),
+            CircularProgressIndicator(color: AppTheme.primary),
           ],
         ),
       ),
